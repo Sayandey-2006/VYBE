@@ -1,0 +1,501 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VYBE - Music Player</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Poppins", sans-serif;
+            min-height: 100vh;
+            color: #ffffff;
+            background:
+                radial-gradient(circle at top left, #35115e, transparent 35%),
+                radial-gradient(circle at bottom right, #102f55, transparent 35%),
+                #090912;
+        }
+
+        .navbar {
+            padding: 22px 7%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #29243b;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #a78bfa;
+            letter-spacing: 2px;
+        }
+
+        .logo span {
+            color: #00e5ff;
+        }
+
+        .tag {
+            color: #b5b0c8;
+            font-size: 13px;
+        }
+
+        .container {
+            max-width: 1100px;
+            width: 90%;
+            margin: 45px auto;
+        }
+
+        .heading {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .heading h1 {
+            font-size: clamp(30px, 5vw, 48px);
+            font-weight: 800;
+        }
+
+        .heading h1 span {
+            color: #a78bfa;
+        }
+
+        .heading p {
+            color: #aaa6bc;
+            margin-top: 10px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            max-width: 750px;
+            margin: 0 auto 35px;
+            padding: 8px;
+            background: #171525;
+            border: 1px solid #44356c;
+            border-radius: 16px;
+            box-shadow: 0 0 30px #7c3aed18;
+        }
+
+        .search-box input {
+            flex: 1;
+            min-width: 0;
+            padding: 14px;
+            color: white;
+            background: transparent;
+            border: none;
+            outline: none;
+            font: inherit;
+        }
+
+        .search-box button {
+            padding: 13px 23px;
+            border: none;
+            border-radius: 11px;
+            color: #090912;
+            background: linear-gradient(135deg, #a78bfa, #00e5ff);
+            font: inherit;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .search-box button:disabled {
+            opacity: 0.6;
+            cursor: wait;
+        }
+
+        .section-title {
+            margin-bottom: 18px;
+            font-size: 20px;
+        }
+
+        .player-layout {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 25px;
+            align-items: start;
+        }
+
+        .player-card,
+        .results-card {
+            background: #151421;
+            border: 1px solid #302a47;
+            border-radius: 18px;
+            padding: 18px;
+            min-width: 0;
+        }
+
+        .video-frame {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #08080d;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .video-frame iframe {
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        .placeholder {
+            display: grid;
+            place-items: center;
+            height: 100%;
+            min-height: 180px;
+            color: #aaa6bc;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .placeholder .note {
+            font-size: 42px;
+            margin-bottom: 10px;
+        }
+
+        .now-playing {
+            padding: 18px 3px 4px;
+        }
+
+        .now-playing h3 {
+            font-size: 17px;
+            overflow-wrap: anywhere;
+        }
+
+        .now-playing p {
+            margin-top: 6px;
+            color: #aaa6bc;
+            font-size: 13px;
+        }
+
+        .results {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            max-height: 480px;
+            overflow-y: auto;
+        }
+
+        .result {
+            display: flex;
+            gap: 12px;
+            padding: 9px;
+            border: 1px solid transparent;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .result:hover,
+        .result.active {
+            background: #28213e;
+            border-color: #8b5cf6;
+        }
+
+        .result img {
+            width: 120px;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+            border-radius: 8px;
+            background: #29243b;
+        }
+
+        .result-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .result-info h3 {
+            font-size: 13px;
+            line-height: 1.5;
+            margin-bottom: 6px;
+            overflow-wrap: anywhere;
+        }
+
+        .result-info p {
+            color: #aaa6bc;
+            font-size: 11px;
+        }
+
+        .message {
+            text-align: center;
+            color: #aaa6bc;
+            padding: 25px 10px;
+            font-size: 14px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: #77738a;
+            font-size: 12px;
+        }
+
+        @media (max-width: 760px) {
+            .player-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .navbar {
+                padding: 18px 5%;
+            }
+
+            .container {
+                margin-top: 30px;
+            }
+
+            .search-box button {
+                padding: 10px 14px;
+            }
+
+            .result img {
+                width: 105px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="logo">♪ VY<span>BE</span></div>
+        <div class="tag">Your music. Your vibe.</div>
+    </nav>
+
+    <main class="container">
+
+        <header class="heading">
+            <h1>Find Your <span>Vibe.</span></h1>
+            <p>Search YouTube and play your favourite music here.</p>
+        </header>
+
+        <form class="search-box" id="searchForm">
+            <input
+                type="search"
+                id="songInput"
+                placeholder="Search a song or artist..."
+                aria-label="Search songs"
+                required
+            >
+            <button type="submit" id="searchBtn">Search</button>
+        </form>
+
+        <div class="player-layout">
+
+            <section class="player-card">
+                <h2 class="section-title">Now Playing</h2>
+
+                <div class="video-frame" id="videoFrame">
+                    <div class="placeholder">
+                        <div>
+                            <div class="note">♫</div>
+                            <p>Search a song and select a result to play it.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="now-playing">
+                    <h3 id="songTitle">Nothing playing yet</h3>
+                    <p id="channelTitle">Your next favourite song is waiting.</p>
+                </div>
+            </section>
+
+            <section class="results-card">
+                <h2 class="section-title">Search Results</h2>
+                <div class="results" id="results">
+                    <p class="message">
+                        Your YouTube search results will appear here.
+                    </p>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <footer>
+        VYBE Music Player · Powered by YouTube
+    </footer>
+
+    <script>
+        // 1. Paste your Google Cloud API key here.
+        const API_KEY = "";
+
+        const searchForm = document.getElementById("searchForm");
+        const songInput = document.getElementById("songInput");
+        const searchBtn = document.getElementById("searchBtn");
+        const results = document.getElementById("results");
+        const videoFrame = document.getElementById("videoFrame");
+        const songTitle = document.getElementById("songTitle");
+        const channelTitle = document.getElementById("channelTitle");
+
+        let activeVideoId = null;
+
+        // 2. Search YouTube when the form is submitted.
+        searchForm.addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            const query = songInput.value.trim();
+
+            if (!query) return;
+
+            if (API_KEY === "YOUR_YOUTUBE_API_KEY") {
+                results.textContent =
+                    "Please add your YouTube Data API key in the JavaScript first.";
+                return;
+            }
+
+            searchBtn.disabled = true;
+            searchBtn.textContent = "Searching...";
+            results.innerHTML = '<p class="message">Searching YouTube...</p>';
+
+            try {
+                const url = new URL(
+                    "https://www.googleapis.com/youtube/v3/search"
+                );
+
+                url.search = new URLSearchParams({
+                    part: "snippet",
+                    q: query,
+                    type: "video",
+                    maxResults: "10",
+                    videoEmbeddable: "true",
+                    key: API_KEY
+                });
+
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(
+                        error.error?.message || "YouTube search failed."
+                    );
+                }
+
+                const data = await response.json();
+
+                displayResults(data.items || []);
+
+            } catch (error) {
+                results.replaceChildren();
+
+                const message = document.createElement("p");
+                message.className = "message";
+                message.textContent = "Error: " + error.message;
+
+                results.appendChild(message);
+            } finally {
+                searchBtn.disabled = false;
+                searchBtn.textContent = "Search";
+            }
+        });
+
+        // 3. Display the matching YouTube videos.
+        function displayResults(videos) {
+            results.replaceChildren();
+
+            if (videos.length === 0) {
+                const message = document.createElement("p");
+                message.className = "message";
+                message.textContent = "No videos found. Try another song.";
+                results.appendChild(message);
+                return;
+            }
+
+            videos.forEach(function (video) {
+                const videoId = video.id.videoId;
+                const title = video.snippet.title;
+                const channel = video.snippet.channelTitle;
+                const thumbnail =
+                    video.snippet.thumbnails.medium?.url ||
+                    video.snippet.thumbnails.default?.url;
+
+                const card = document.createElement("article");
+                card.className = "result";
+                card.tabIndex = 0;
+                card.setAttribute("role", "button");
+                card.setAttribute("aria-label", "Play " + title);
+
+                const img = document.createElement("img");
+                img.src = thumbnail;
+                img.alt = "";
+                img.loading = "lazy";
+
+                const info = document.createElement("div");
+                info.className = "result-info";
+
+                const heading = document.createElement("h3");
+                heading.textContent = title;
+
+                const channelName = document.createElement("p");
+                channelName.textContent = channel;
+
+                info.append(heading, channelName);
+                card.append(img, info);
+
+                function selectVideo() {
+                    playVideo(videoId, title, channel, card);
+                }
+
+                card.addEventListener("click", selectVideo);
+
+                card.addEventListener("keydown", function (event) {
+                    if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        selectVideo();
+                    }
+                });
+
+                results.appendChild(card);
+            });
+        }
+
+        // 4. Play the selected video inside the app.
+        
+function playVideo(videoId, title, channel, selectedCard) {
+    const iframe = document.createElement("iframe");
+
+    iframe.src =
+        "https://www.youtube.com/embed/" +
+        encodeURIComponent(videoId) +
+        "?autoplay=1";
+
+    iframe.title = title;
+    iframe.allow =
+        "autoplay; encrypted-media; picture-in-picture; web-share";
+    iframe.allowFullscreen = true;
+
+    // Keep the embedding page's referrer information available.
+    iframe.referrerPolicy = "strict-origin-when-cross-origin";
+
+    iframe.style.width = "100%";
+    iframe.style.height = "100%";
+    iframe.style.border = "0";
+
+    videoFrame.replaceChildren(iframe);
+
+    songTitle.textContent = title;
+    channelTitle.textContent = channel;
+
+    document.querySelectorAll(".result").forEach(function (card) {
+        card.classList.remove("active");
+    });
+
+    selectedCard.classList.add("active");
+}
+    </script>
+
+</body>
+</html>
